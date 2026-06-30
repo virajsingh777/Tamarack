@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Center Political Climate: WA & OR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #21262d;
+    --accent-wa: #3b82f6;
+    --accent-or: #f97316;
+    --accent-fed: #a855f7;
+    --warn: #ef4444;
+    --ok: #22c55e;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.65;
+    font-size: 15px;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 48px 0 36px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 79px, #ffffff06 79px, #ffffff06 80px);
+    pointer-events: none;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-family: var(--mono);
+    font-size: clamp(22px, 4vw, 38px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  h1 span.wa { color: var(--accent-wa); }
+  h1 span.or { color: var(--accent-or); }
+  .header-sub {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 14px;
+    font-style: italic;
+  }
+  .updated {
+    display: inline-block;
+    margin-top: 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    background: #21262d;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 12px;
+    color: var(--muted);
+  }
+
+  .container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* NEW: Breaking news banner */
+  .breaking-bar {
+    background: #1a0d0d;
+    border-bottom: 2px solid var(--warn);
+    padding: 0;
+  }
+  .breaking-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 14px 24px;
+  }
+  .breaking-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--warn);
+    margin-bottom: 8px;
+  }
+  .breaking-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .breaking-items li {
+    font-size: 13px;
+    color: #fca5a5;
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+  }
+  .breaking-items li::before {
+    content: '▸';
+    color: var(--warn);
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+  .break-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: #f87171;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  section {
+    border-bottom: 1px solid var(--border);
+    padding: 48px 0;
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .state-pill {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+  }
+  .pill-wa { background: #1d3461; color: var(--accent-wa); }
+  .pill-or { background: #3a1a06; color: var(--accent-or); }
+  .pill-fed { background: #2a1a3e; color: var(--accent-fed); }
+  .pill-both { background: #1a2a1a; color: var(--ok); }
+  .pill-new { background: #2a0d0d; color: var(--warn); }
+
+  h2 {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .reg-grid { display: grid; gap: 16px; }
+
+  .reg-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 24px;
+    position: relative;
+  }
+  .reg-card.risk { border-left: 3px solid var(--warn); }
+  .reg-card.neutral { border-left: 3px solid var(--accent-wa); }
+  .reg-card.positive { border-left: 3px solid var(--ok); }
+  .reg-card.pending { border-left: 3px solid #eab308; }
+  /* NEW: highlight for newly added cards */
+  .reg-card.new-dev {
+    border-left: 3px solid var(--warn);
+    background: #1c1218;
+  }
+  .new-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--warn);
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .reg-title {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .reg-status {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .status-enacted { background: #14290d; color: var(--ok); }
+  .status-dead { background: #2a0d0d; color: #f87171; }
+  .status-pending { background: #2a2008; color: #fbbf24; }
+  .status-active { background: #1a1535; color: #a78bfa; }
+  .status-moratorium { background: #3a0808; color: #fca5a5; }
+
+  .reg-body {
+    font-size: 14px;
+    color: #cdd5e0;
+    margin-bottom: 10px;
+  }
+  .reg-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .reg-meta a {
+    color: var(--muted);
+    text-decoration: underline;
+    text-decoration-color: #444;
+  }
+  .reg-meta a:hover { color: var(--text); }
+
+  .threshold {
+    display: inline-block;
+    background: #0d1a2e;
+    border: 1px solid #1e3a5f;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 2px 8px;
+    color: var(--accent-wa);
+    margin: 0 2px;
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-top: 8px;
+  }
+  .compare-table th {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    text-align: left;
+    background: var(--surface);
+  }
+  .compare-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: #cdd5e0;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: #1a2030; }
+  .compare-table td:first-child {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .changed {
+    background: #1c1218 !important;
+  }
+  .changed td:first-child { color: #fca5a5 !important; }
+
+  .risk-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    width: 240px;
+    flex-shrink: 0;
+    color: var(--text);
+  }
+  .risk-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: #21262d;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .risk-bar { height: 100%; border-radius: 4px; }
+  .risk-bar.low { background: var(--ok); }
+  .risk-bar.med { background: #eab308; }
+  .risk-bar.high { background: #f97316; }
+  .risk-bar.critical { background: var(--warn); }
+  .risk-val {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    width: 60px;
+    text-align: right;
+  }
+
+  .takeaway {
+    background: #111820;
+    border: 1px solid #1e3a5f;
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+  .takeaway-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-wa);
+    margin-bottom: 10px;
+  }
+  .takeaway p { color: #cdd5e0; font-size: 14px; }
+
+  .sources-list {
+    list-style: none;
+    display: grid;
+    gap: 10px;
+  }
+  .sources-list li {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 12px;
+    font-size: 13px;
+    color: #cdd5e0;
+    align-items: baseline;
+  }
+  .src-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .src-date.new { color: #fca5a5; }
+  .sources-list a {
+    color: #cdd5e0;
+    text-decoration: underline;
+    text-decoration-color: #444;
+  }
+  .sources-list a:hover { color: var(--text); }
+
+  footer {
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 28px 0 14px;
+  }
+  h3:first-of-type { margin-top: 0; }
+
+  p { margin-bottom: 12px; color: #cdd5e0; font-size: 14px; }
+  p:last-child { margin-bottom: 0; }
+  strong { color: var(--text); font-weight: 600; }
+
+  /* moratorium map */
+  .moratorium-map {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .moratorium-map-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .moratorium-items {
+    display: grid;
+    gap: 10px;
+  }
+  .moratorium-item {
+    display: grid;
+    grid-template-columns: 160px 1fr auto;
+    gap: 12px;
+    align-items: baseline;
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .moratorium-item:last-child { border-bottom: none; }
+  .mor-place { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text); }
+  .mor-detail { color: #cdd5e0; }
+  .mor-date { font-family: var(--mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+  @media (max-width: 640px) {
+    .risk-label { width: 150px; font-size: 11px; }
+    .compare-table { font-size: 12px; }
+    .compare-table th, .compare-table td { padding: 8px 10px; }
+    .moratorium-item { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BREAKING NEWS BAR -->
+<div class="breaking-bar">
+  <div class="breaking-inner">
+    <div class="breaking-title">⚡ New Since Last Update — June 2026</div>
+    <ul class="breaking-items">
+      <li><span class="break-date">Jun 23</span>Spokane City Council passes 1-year data center moratorium 6–1 (Ordinance C36887)</li>
+      <li><span class="break-date">Jun 25</span>1000 Friends of Oregon sues Hillsboro and Washington County over 17 rushed tax break approvals</li>
+      <li><span class="break-date">Jun 9</span>Seattle City Council passes 1-year moratorium unanimously — largest U.S. city to do so; covers >20 MVA facilities</li>
+      <li><span class="break-date">Jun 5</span>Oregon HB 4084 takes effect — enterprise zone property tax exemptions now barred for new data centers until after 2027 legislative session</li>
+      <li><span class="break-date">Jun 18</span>FERC issues 6 unanimous orders fast-tracking large data center grid connections nationally</li>
+      <li><span class="break-date">Jun 26</span>Oregon Data Center Advisory Committee holds 5th session — draft report due July 31, final report October 2026</li>
+    </ul>
+  </div>
+</div>
+
+<header>
+  <div class="container">
+    <div class="eyebrow">Land Acquisition &amp; Development Intelligence</div>
+    <h1><span class="wa">Washington</span> &amp; <span class="or">Oregon</span><br>Data Center Political Climate</h1>
+    <div class="header-sub">A practitioner's guide for hyperscaler-targeted land plays — energy, tax, zoning, and permitting risk</div>
+    <div class="updated">Last updated: June 30, 2026 &nbsp;|&nbsp; Sources through June 25, 2026</div>
+  </div>
+</header>
+
+<!-- WASHINGTON -->
+<section>
+  <div class="container">
+    <div class="section-label">
+      <span class="state-pill pill-wa">Washington State</span>
+      <h2>Legislative &amp; Regulatory Landscape</h2>
+    </div>
+
+    <h3>The Core Story</h3>
+    <p>Since our last update, Washington has seen an acceleration of municipal-level resistance that the state legislature could not deliver. Seattle and Spokane both passed one-year data center moratoria in June 2026, and Skagit County passed a six-month moratorium earlier in the month. The state regulatory framework remains unsettled — the UTC docket is active, the workgroup report is due, and the 2027 legislative session looms — but the community opposition factor has now become a concrete, binding constraint on western Washington site selection, not just a political risk to monitor.</p>
+
+    <h3>Municipal Moratoria — New June 2026</h3>
+    <div class="moratorium-map">
+      <div class="moratorium-map-title">Active Moratoria in Washington State</div>
+      <div class="moratorium-items">
+        <div class="moratorium-item">
+          <div class="mor-place">Seattle</div>
+          <div class="mor-detail">1-year ban on new data centers over <strong>20 MVA</strong>, with 6-month extension option. Passed 9–0. Covers all permitting, acceptance, and approval. Triggered by 5 proposed hyperscale projects totaling 369 MW from Seattle City Light's ~1 GW grid. Two companies pulled back; Equinix and Prologis still considering.</div>
+          <div class="mor-date">Enacted Jun 9, 2026</div>
+        </div>
+        <div class="moratorium-item">
+          <div class="mor-place">Spokane</div>
+          <div class="mor-detail">1-year ban on new large data centers, passed 6–1 (Ordinance C36887). Triggered by Avista utility disclosing a nonbinding agreement with an unnamed customer seeking <strong>500 MW</strong> — more than half the combined power of all Spokane County customers. Avista has paused those negotiations. Public hearing set July 22, 2026.</div>
+          <div class="mor-date">Enacted Jun 22, 2026</div>
+        </div>
+        <div class="moratorium-item">
+          <div class="mor-place">Skagit County</div>
+          <div class="mor-detail">6-month moratorium passed earlier in June 2026 by the board of commissioners.</div>
+          <div class="mor-date">Jun 2026</div>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13px; color: var(--muted); font-style:italic; margin-bottom:20px;">Note: Moratoria apply within city/county limits only. A project sited outside Spokane city limits in unincorporated Spokane County — such as the former Kaiser Aluminum smelter site in Mead, which sits adjacent to BPA's Bell Substation — would not be directly blocked by the city moratorium, though city water service could be withheld.</p>
+
+    <div class="reg-grid">
+
+      <div class="reg-card risk">
+        <div class="reg-title">
+          HB 2515 — "Addressing Emerging Large Energy Use Facilities"
+          <span class="reg-status status-dead">Dead — 2026 Session</span>
+        </div>
+        <div class="reg-body">
+          The flagship bill that would have imposed sweeping data center regulations statewide. Defined any facility using <span class="threshold">&gt;20 MW</span> as an "emerging large energy use facility." Would have required utilities to file dedicated tariffs, imposed <strong>80% clean energy procurement by 2031 and 100% by 2046</strong>, mandated interruptible-load protocols, and barred cost-shifting to residential ratepayers. Passed the House 51–41 but died in the Senate. The Data Center Coalition has since publicly argued the bill could have been salvaged with better "operational conditions" — suggesting negotiations may resume. The Data Center Workgroup's final report and the UTC's large-load docket are both expected to feed directly into a 2027 revival of this framework.
+        </div>
+        <div class="reg-meta">Source: Davis Wright Tremaine, Mar. 20, 2026 — <a href="https://www.dwt.com/blogs/energy--environmental-law-blog/2026/03/washington-legislature-delays-data-center-bill" target="_blank">dwt.com</a> &nbsp;|&nbsp; The Center Square, Jun. 23, 2026 — <a href="https://www.thecentersquare.com/washington/article_314ba536-9cfe-4545-9a8c-d342094fe5f0.html" target="_blank">thecentersquare.com</a></div>
+      </div>
+
+      <div class="reg-card risk">
+        <div class="reg-title">
+          SB 6231 — Sales Tax Exemption Rollback
+          <span class="reg-status status-enacted">Enacted — Effective July 1, 2026</span>
+        </div>
+        <div class="reg-body">
+          <strong>Signed by Gov. Bob Ferguson.</strong> Eliminates the sales tax exemption for replacement or refurbishment of existing server equipment as of July 1, 2026. New equipment in qualifying new data centers remains exempt. Prior to this, operators paid zero on the <strong>6.5% state sales tax</strong> for server refreshes every 3–5 years. Affects brownfield and upgrade plays materially; new greenfield in eligible counties is unaffected.
+        </div>
+        <div class="reg-meta">Source: E&amp;E News, Apr. 8, 2026 — <a href="https://www.eenews.net/articles/washington-state-to-end-some-data-center-tax-incentives/" target="_blank">eenews.net</a> &nbsp;|&nbsp; Leyton, Apr. 27, 2026 — <a href="https://leyton.com/us/insights/articles/washington-removes-sales-tax-exemptions-for-data-center-equipment-replacement/" target="_blank">leyton.com</a></div>
+      </div>
+
+      <div class="reg-card pending">
+        <div class="reg-title">
+          Washington UTC — Large Load Policy Docket
+          <span class="reg-status status-pending">Active — Decision Expected Late 2026</span>
+        </div>
+        <div class="reg-body">
+          The Washington Utilities and Transportation Commission launched a multi-month rulemaking after HB 2515 failed, to set policy for large-load connections (<span class="threshold">&gt;20 MW</span>) to investor-owned utilities (PSE, PacifiCorp). Will issue a policy statement on interconnection cost allocation and ratepayer protections. <strong>Does not apply to consumer-owned utilities</strong> — Grant PUD, Douglas PUD, Chelan PUD remain outside its jurisdiction entirely. That carve-out is structural, not subject to this docket.
+        </div>
+        <div class="reg-meta">Source: KHQ, Apr. 21, 2026 — <a href="https://www.khq.com/news/state-of-washington-opens-new-review-of-big-power-users-as-data-center-demand-grows/article_b9e659b2-2f81-42d5-8089-c9c637fb5563.html" target="_blank">khq.com</a></div>
+      </div>
+
+      <div class="reg-card neutral">
+        <div class="reg-title">
+          Executive Order 25-05 — Data Center Workgroup
+          <span class="reg-status status-active">Active — Final Report Expected 2026</span>
+        </div>
+        <div class="reg-body">
+          Gov. Ferguson's cross-agency workgroup delivered its preliminary report December 1, 2025. Final report expected later this year. Top recommendation: Washington's Climate Commitment Act and Clean Energy Transformation Act (CETA) should explicitly cover fossil or unspecified power used by data centers. The final report will directly frame 2027 legislation. The workgroup also flagged that Washington has <strong>no property tax incentives</strong> while 37 other states do — a data point that cuts both ways politically.
+        </div>
+        <div class="reg-meta">Source: WA Data Center Workgroup Preliminary Report, Dec. 1, 2025 — <a href="https://dor.wa.gov/sites/default/files/2025-12/2025DataCntrWrkgrpPrelimReport.pdf" target="_blank">dor.wa.gov (PDF)</a></div>
+      </div>
+
+      <div class="reg-card neutral">
+        <div class="reg-title">
+          RCW 82.08.986 — Sales Tax Exemption (Remaining, New Builds)
+          <span class="reg-status status-enacted">In Force (Partial)</span>
+        </div>
+        <div class="reg-body">
+          New data center builds in rural counties (under 100 persons/sq mi, or under 225 sq mi) carry <strong>uncapped sales tax exemptions</strong> on qualifying equipment — no certificate limit. Urban counties (population over 800K) are capped at <strong>6 certificates per year statewide</strong>. Requires minimum investment of <span class="threshold">$200M</span> and 35+ new jobs. Eastern WA counties remain the clearest path to uncapped exemptions. Note: the Seattle and Spokane moratoria do not affect tax eligibility, but they do block permitting within city limits, making the exemption moot for urban sites during the moratorium period.
+        </div>
+        <div class="reg-meta">Source: WA Dept. of Revenue — <a href="https://dor.wa.gov/forms-publications/publications-subject/tax-topics/data-centers-sales-and-use-tax-exemption-eligibility" target="_blank">dor.wa.gov</a></div>
+      </div>
+
+      <div class="reg-card neutral">
+        <div class="reg-title">
+          SEPA — State Environmental Policy Act
+          <span class="reg-status status-active">Baseline Requirement</span>
+        </div>
+        <div class="reg-body">
+          Every WA project requires SEPA environmental review (WAC 197-11). Lead agency is typically the local jurisdiction. New water withdrawals require a separate Ecology permit. Air permits required for backup diesel generators — regulated by local clean air agencies or Ecology depending on county. The Spokane moratorium hearing on July 22 may produce a SEPA-linked permitting framework specific to data centers for Spokane County. For projects near tribal lands, government-to-government consultation required and can significantly extend timelines.
+        </div>
+        <div class="reg-meta">Source: WA Dept. of Ecology — <a href="https://ecology.wa.gov/regulations-permits/sepa/clean-energy/early-planning/permitting-resources" target="_blank">ecology.wa.gov</a></div>
+      </div>
+
+    </div>
+
+    <div class="takeaway">
+      <div class="takeaway-title">→ Updated Acquisition Implication for WA</div>
+      <p>Western Washington is now operationally off the table for hyperscaler land plays for at least the next 12 months. Seattle and Spokane moratoria are binding. Skagit County adds to the list. The urban 6-certificate cap was already a constraint; the moratoria layer on top of it to make permitting impossible regardless of tax eligibility.</p>
+      <p style="margin-top:10px;">Eastern Washington — Grant, Douglas, Kittitas counties — remains the defensible position. The consumer-owned utility carve-out from the UTC docket is structural, the tax exemptions are uncapped, and no moratorium is in place in those counties. However, the 500 MW Avista situation in Spokane County shows how fast community opposition can materialize even in eastern WA. Underwrite eastern WA assuming the HB 2515 framework passes in 2027, meaning any site over 20 MW should model mandatory clean energy procurement from day one.</p>
+    </div>
+  </div>
+</section>
+
+<!-- OREGON -->
+<section>
+  <div class="container">
+    <div class="section-label">
+      <span class="state-pill pill-or">Oregon</span>
+      <h2>Legislative &amp; Regulatory Landscape</h2>
+    </div>
+
+    <h3>The Core Story</h3>
+    <p>Oregon's story has moved significantly since the last update. The POWER Act is fully live. But two major new developments change the tax picture materially: Oregon's enterprise zone property tax exemption — the state's signature incentive — is now under a moratorium for new data centers effective June 5, 2026, and advocacy groups have sued Hillsboro and Washington County over exemptions rushed through before the deadline. Meanwhile, Oregon's Data Center Advisory Committee is actively meeting, with a final report due October 2026 that will shape 2027 legislation. The property tax advantage that made Oregon compelling is no longer available to new projects.</p>
+
+    <div class="reg-grid">
+
+      <div class="reg-card new-dev">
+        <div class="reg-title">
+          HB 4084 — Enterprise Zone Moratorium for Data Centers <span class="new-badge">New</span>
+          <span class="reg-status status-moratorium">In Force — Effective June 5, 2026</span>
+        </div>
+        <div class="reg-body">
+          <strong>This is the biggest change since the last update.</strong> The 2026 Oregon Legislature passed HB 4084, which as enacted bars new data centers from accessing the state's Enterprise Zone property tax exemption program. The moratorium remains in effect until <strong>90 days after the 2027 Oregon legislative session adjourns</strong> — potentially extending into fall 2027 or later. Prior to this, local governments could grant unlimited, no-cap property tax exemptions to data centers with no job creation requirement — a structural advantage worth over $450M/year statewide.<br><br>
+          What's still available: data centers approved before June 5 keep their exemptions. Data centers may still access the <strong>Strategic Investment Program</strong>, a separate state property tax incentive not covered by the moratorium. The rush to beat the June 5 deadline generated 17 applications in Hillsboro in a matter of weeks — which is now the subject of litigation (see below).
+        </div>
+        <div class="reg-meta">Source: Davis Wright Tremaine, Jun. 2026 — <a href="https://www.dwt.com/blogs/energy--environmental-law-blog/2026/06/oregon-data-center-tax-break-moratorium" target="_blank">dwt.com</a> &nbsp;|&nbsp; City of Hillsboro — <a href="https://www.hillsboro-oregon.gov/community/data-centers" target="_blank">hillsboro-oregon.gov</a> &nbsp;|&nbsp; National Law Review, May 29, 2026 — <a href="https://natlawreview.com/article/environmental-developments-watch-oregon" target="_blank">natlawreview.com</a></div>
+      </div>
+
+      <div class="reg-card new-dev">
+        <div class="reg-title">
+          Hillsboro / Washington County — Lawsuit Over Rushed Tax Breaks <span class="new-badge">New</span>
+          <span class="reg-status status-active">Active — Filed Jun 23, 2026</span>
+        </div>
+        <div class="reg-body">
+          A coalition including <strong>1000 Friends of Oregon, Oregon Education Association, Tax Fairness Oregon, Tualatin Riverkeepers</strong>, and a sitting Hillsboro city councilor filed suit in Washington County Circuit Court seeking to overturn enterprise zone tax exemptions approved for projects tied to <strong>NVIDIA, CoreWeave, Adobe, Dropbox, QTS, and Flexential</strong>. The city approved 17 applications in the weeks before the June 5 moratorium — some for companies stacking successive 5-year exemption applications to lock in tax-free status for decades. The lawsuit alleges: failure to follow required procedures, insufficient evidence of economic benefit, and that some agreements exceed the enterprise zone's legal lifespan. Hillsboro disputes the claims. Outcome is uncertain but creates title/approval risk for any buyer of affected sites.
+        </div>
+        <div class="reg-meta">Source: KATU News, Jun. 25, 2026 — <a href="https://katu.com/news/local/lawsuit-filed-against-hillsboro-washington-county-over-data-center-tax-breaks-billionaire-environment-company-fortune-500-oregon-portland-salem-politics-business-jobs-water-privacy" target="_blank">katu.com</a> &nbsp;|&nbsp; Data Centers Daily Notes, Jun. 23, 2026 — <a href="https://writing.strisker.com/data-centers-daily-notes-june-23-2026/" target="_blank">strisker.com</a></div>
+      </div>
+
+      <div class="reg-card new-dev">
+        <div class="reg-title">
+          Oregon Data Center Advisory Committee (DCAC) <span class="new-badge">New</span>
+          <span class="reg-status status-pending">Active — Draft Report Jul 31, Final Oct 2026</span>
+        </div>
+        <div class="reg-body">
+          Formed by Gov. Kotek in January 2026 alongside the HB 4084 moratorium, the DCAC has completed 5 of its sessions (most recently June 26, 2026, focused on energy affordability, revenue, and incentives). The committee's charge: "identify ways to better balance economic opportunities with clean energy goals and affordable, reliable electricity." Draft report due July 31, 2026. Final report and policy recommendations in October 2026. This will directly shape 2027 Oregon legislation. The committee's work creates a window to engage and influence policy outcomes — but that window is narrow. Industry engagement before the July 31 draft matters.
+        </div>
+        <div class="reg-meta">Source: Oregon Governor's Office, DCAC Agenda Jun. 26, 2026 — <a href="https://www.oregon.gov/energy/get-involved/Documents/2026-06-26-DCAC-Agenda.pdf" target="_blank">oregon.gov (PDF)</a> &nbsp;|&nbsp; Davis Wright Tremaine — <a href="https://www.dwt.com/blogs/energy--environmental-law-blog/2026/06/oregon-data-center-tax-break-moratorium" target="_blank">dwt.com</a></div>
+      </div>
+
+      <div class="reg-card risk">
+        <div class="reg-title">
+          HB 3546 — POWER Act (Protecting Oregonians With Energy Responsibility)
+          <span class="reg-status status-enacted">Enacted June 2025 — Fully Live</span>
+        </div>
+        <div class="reg-body">
+          Creates a standalone large-load rate class for data centers at investor-owned utilities (PGE, Pacific Power, Idaho Power). Applies to facilities using <span class="threshold">&gt;20 MW</span>. PGE's new rate structure (Schedule 96) took effect <strong>June 10, 2026</strong>. Key provisions: data centers pay 100% of distribution infrastructure costs; must comply with HB 2021 emissions obligations; pay <strong>1¢/kWh surcharge</strong> for facilities over 100 MW into a low-income efficiency fund; must pay exit fees if they abandon a project mid-construction; infrastructure cost obligations are indefinite (PUC rejected a 10-year cap). Rehearing requests due July 6 — possible further modifications. Pacific Power's proceeding expected to conclude <strong>November 2026</strong>. Does not apply to consumer-owned utilities.
+        </div>
+        <div class="reg-meta">Source: Utility Dive, May 28, 2026 — <a href="https://www.utilitydive.com/news/oregon-puc-approves-pges-large-load-tariff-framework-for-data-centers/821361/" target="_blank">utilitydive.com</a> &nbsp;|&nbsp; OPB, May 12, 2026 — <a href="https://www.opb.org/article/2026/05/12/portland-general-electric-oregon-power-data-centers/" target="_blank">opb.org</a></div>
+      </div>
+
+      <div class="reg-card neutral">
+        <div class="reg-title">
+          HB 2021 — Clean Electricity Mandate
+          <span class="reg-status status-enacted">Existing Law — Binding for Data Centers</span>
+        </div>
+        <div class="reg-body">
+          Oregon requires <strong>50% renewable electricity by 2040 and 100% clean by 2040</strong> for large utilities. The PUC's POWER Act order explicitly requires data centers in PGE territory not to undermine this obligation. Clean energy compliance is not optional — it is now embedded in the interconnection approval process under Schedule 96.
+        </div>
+        <div class="reg-meta">Source: US Data Map — <a href="https://usdatamap.com/state/OR" target="_blank">usdatamap.com</a></div>
+      </div>
+
+      <div class="reg-card neutral">
+        <div class="reg-title">
+          Goal 14 — Urban Growth Boundary Requirements
+          <span class="reg-status status-active">Ongoing Constraint</span>
+        </div>
+        <div class="reg-body">
+          Oregon's statewide land use planning law requires data centers to be sited within urban growth boundaries or designated industrial zones. Hillsboro/Washington County is heavily built out — 21 existing or in-progress data center sites covering ~470 acres, representing 8% of the North Hillsboro Industrial Area. Five more planned sites would add ~177 acres but those are already submitted. The practical effect: the Hillsboro pipeline is mostly spoken for. Eastern Oregon (Morrow, Umatilla, Wasco counties) has available industrial-zoned land with existing power infrastructure and no similar land constraint.
+        </div>
+        <div class="reg-meta">Source: City of Hillsboro, Jun. 2026 — <a href="https://www.hillsboro-oregon.gov/community/data-centers" target="_blank">hillsboro-oregon.gov</a></div>
+      </div>
+
+      <div class="reg-card positive">
+        <div class="reg-title">
+          Strategic Investment Program — Property Tax Incentive (Still Available)
+          <span class="reg-status status-enacted">In Force — Not Covered by Moratorium</span>
+        </div>
+        <div class="reg-body">
+          The HB 4084 moratorium covers the Enterprise Zone program only. Oregon's <strong>Strategic Investment Program</strong> is a separate state property tax incentive that remains available to data centers. The SIP typically applies to very large capital investments and involves negotiated agreements with local governments. This is not a simple plug-in replacement for the enterprise zone exemption — it requires more negotiation, higher investment thresholds, and community benefit agreements — but it preserves some property tax relief pathway for major projects. Details on current SIP eligibility and thresholds should be confirmed with Oregon Business Oregon (the state economic development agency).
+        </div>
+        <div class="reg-meta">Source: Davis Wright Tremaine, Jun. 2026 — <a href="https://www.dwt.com/blogs/energy--environmental-law-blog/2026/06/oregon-data-center-tax-break-moratorium" target="_blank">dwt.com</a></div>
+      </div>
+
+      <div class="reg-card neutral">
+        <div class="reg-title">
+          DEQ Tier 4 Streamlined Air Permit
+          <span class="reg-status status-active">Available Program</span>
+        </div>
+        <div class="reg-body">
+          Oregon DEQ's streamlined permitting pathway for data centers using <strong>EPA Tier 4 certified backup diesel generators</strong>. As of 2025, Oregon had 40+ data centers with 6,000 MW of backup generating capacity — double statewide residential usage. Tier 4 commitment enables faster air permitting and is increasingly a hyperscaler specification requirement. Pre-establishing Tier 4 compatibility in site analysis is a selling point for buyers.
+        </div>
+        <div class="reg-meta">Source: Oregon DEQ — <a href="https://www.oregon.gov/deq/aq/aqPermits/Pages/Data-Center-Permit.aspx" target="_blank">oregon.gov/deq</a></div>
+      </div>
+
+    </div>
+
+    <div class="takeaway">
+      <div class="takeaway-title">→ Updated Acquisition Implication for OR</div>
+      <p>The property tax picture in Oregon changed materially in June 2026. The enterprise zone exemption — previously unlimited and no-cap — is now unavailable for new data centers until at least fall 2027. The Strategic Investment Program remains available but is not a simple substitute. Oregon's no-sales-tax advantage remains intact, and hydropower rates remain competitive, but the combination of POWER Act rate increases and the enterprise zone moratorium means the cost model for new Oregon projects looks meaningfully different than it did six months ago.</p>
+      <p style="margin-top:10px;">The Hillsboro lawsuit adds title risk for any site whose recent tax exemptions were part of the rushed approval wave. Eastern Oregon (Morrow, Umatilla, Wasco counties) is the cleaner play: industrial zoning exists, consumer-owned utilities sidestep the POWER Act, and the enterprise zone moratorium still applies but eastern Oregon's lower land costs and existing BPA infrastructure may compensate. The DCAC draft report on July 31 is the next critical date — get in front of that process if possible.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEDERAL OVERLAY -->
+<section>
+  <div class="container">
+    <div class="section-label">
+      <span class="state-pill pill-fed">Federal</span>
+      <h2>Federal Overlay</h2>
+    </div>
+
+    <div class="reg-grid">
+
+      <div class="reg-card new-dev">
+        <div class="reg-title">
+          FERC — Six Large Load Interconnection Orders <span class="new-badge">New</span>
+          <span class="reg-status status-enacted">Issued June 18, 2026</span>
+        </div>
+        <div class="reg-body">
+          FERC unanimously approved six orders on June 18 requiring all major U.S. grid operators to fast-track AI data center grid connections within <strong>30- and 60-day federal deadlines</strong>, while explicitly barring utilities from shifting interconnection costs to existing ratepayers. Covers PJM, MISO, SPP, CAISO, and others. The Pacific Northwest falls under BPA/WECC jurisdiction, so direct applicability varies — but the federal direction of travel is unambiguous. These orders do not override state land use, zoning, or retail utility rate regulations. FERC Chair Laura Swett framed this as the federal government treating AI power demand as a "national infrastructure crisis."
+        </div>
+        <div class="reg-meta">Source: TechTimes, Jun. 20, 2026 — <a href="https://www.techtimes.com/articles/318755/20260620/ferc-mandates-fast-track-data-center-grid-access-shielding-ratepayers-costs.htm" target="_blank">techtimes.com</a></div>
+      </div>
+
+      <div class="reg-card neutral">
+        <div class="reg-title">
+          Trump Executive Orders + "Ratepayer Protection Pledge"
+          <span class="reg-status status-active">Federal Policy</span>
+        </div>
+        <div class="reg-body">
+          The Trump administration streamlined federal environmental review for facilities over <span class="threshold">100 MW</span> or $500M investment. Per MultiState (May 2026), these orders <strong>do not override state authority on land use, zoning, or utility regulations.</strong> States with independent air quality programs have maintained their own review timelines regardless. The voluntary Ratepayer Protection Pledge does not bind WA or OR regulators.
+        </div>
+        <div class="reg-meta">Source: MultiState, May 1, 2026 — <a href="https://www.multistate.us/insider/2026/4/14/federal-ai-data-center-policy-meets-resistance-from-state-lawmakers" target="_blank">multistate.us</a></div>
+      </div>
+
+    </div>
+
+    <div class="takeaway">
+      <div class="takeaway-title">→ Bottom Line on Federal vs. State</div>
+      <p>The FERC orders are meaningful for transmission queue timing but do not touch land use, zoning, moratorium decisions, or state utility rate structures. Washington and Oregon retain full authority over the variables that actually determine site feasibility. Federal tailwind is real at the transmission level — it does not shorten Spokane's moratorium or reopen Oregon's enterprise zone exemption.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section>
+  <div class="container">
+    <div class="section-label">
+      <span class="state-pill pill-both">Side by Side</span>
+      <h2>WA vs. OR — Updated Developer Comparison</h2>
+    </div>
+    <p style="margin-bottom:16px; font-size:13px; color: var(--muted); font-style:italic;">Rows in red reflect material changes since the previous version of this guide.</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Factor</th>
+          <th>Washington</th>
+          <th>Oregon</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Energy cost</td>
+          <td>~4–5¢/kWh (hydro, Eastern WA); higher in PSE territory</td>
+          <td>~4.5–5.5¢/kWh; now subject to POWER Act rate class (PGE rates effective Jun 10)</td>
+        </tr>
+        <tr>
+          <td>Sales tax on equipment</td>
+          <td>6.5% (exempt for new builds in qualifying counties; replacement exemption gone Jul 1, 2026)</td>
+          <td>No sales tax — full advantage, no application required</td>
+        </tr>
+        <tr class="changed">
+          <td>Property tax incentives ⚠</td>
+          <td>None statewide</td>
+          <td>Enterprise Zone moratorium in effect for new data centers until ~fall 2027. Strategic Investment Program still available but requires negotiation. Previously $450M+/year in exemptions.</td>
+        </tr>
+        <tr>
+          <td>Land use constraints</td>
+          <td>Less restrictive statewide; county zoning varies</td>
+          <td>Goal 14 UGB requirement — Hillsboro essentially full; eastern OR has available industrial land</td>
+        </tr>
+        <tr class="changed">
+          <td>Municipal moratoria ⚠</td>
+          <td>Seattle (1-yr, &gt;20 MVA), Spokane (1-yr), Skagit County (6-mo) — all June 2026</td>
+          <td>No statewide moratorium; Hillsboro paused new applications after May 7; enterprise zone moratorium is the operative restriction</td>
+        </tr>
+        <tr>
+          <td>Energy regulation (large load)</td>
+          <td>UTC docket underway; no enacted rate class yet</td>
+          <td>POWER Act fully live; PGE rate enacted; Pacific Power proceeding by Nov. 2026</td>
+        </tr>
+        <tr>
+          <td>Clean energy mandate</td>
+          <td>CETA (100% clean by 2045); HB 2515 framework (80% by 2031 for data centers) expected to return 2027</td>
+          <td>HB 2021 (100% clean by 2040); now embedded in POWER Act interconnection approvals</td>
+        </tr>
+        <tr>
+          <td>Regulatory certainty</td>
+          <td>Low — unsettled at state level; municipal moratoria now binding in key cities</td>
+          <td>Medium — POWER Act is law; enterprise zone moratorium adds uncertainty on tax side</td>
+        </tr>
+        <tr>
+          <td>Best submarket</td>
+          <td>Eastern WA: Grant, Douglas, Kittitas counties — hydro + rural exemptions + PUD carve-out</td>
+          <td>Eastern OR: The Dalles, Morrow/Umatilla — industrial zoning + BPA power + consumer-owned utility carve-out from POWER Act</td>
+        </tr>
+        <tr>
+          <td>Water rights</td>
+          <td>New withdrawals require Ecology permit; Spokane's aquifer under scrutiny given 500 MW facility discussions</td>
+          <td>OR Water Resources Dept.; Columbia River competing demands; Hillsboro lawsuit raises water-use transparency issues</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- RISK -->
+<section>
+  <div class="container">
+    <div class="section-label">
+      <span class="state-pill pill-both">Risk Analysis</span>
+      <h2>Underwriting Risk Factors — Updated June 2026</h2>
+    </div>
+    <p style="margin-bottom:20px;">Recalibrated to reflect the moratorium wave and Oregon enterprise zone change.</p>
+
+    <div>
+      <div class="risk-row">
+        <div class="risk-label">WA: Municipal moratorium exposure (west)</div>
+        <div class="risk-bar-wrap"><div class="risk-bar critical" style="width:95%"></div></div>
+        <div class="risk-val">Critical</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">WA: 2027 regulatory reset (HB 2515)</div>
+        <div class="risk-bar-wrap"><div class="risk-bar critical" style="width:88%"></div></div>
+        <div class="risk-val">High</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">WA: Tax incentive erosion</div>
+        <div class="risk-bar-wrap"><div class="risk-bar high" style="width:72%"></div></div>
+        <div class="risk-val">Elevated</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">WA: Community opposition velocity</div>
+        <div class="risk-bar-wrap"><div class="risk-bar critical" style="width:90%"></div></div>
+        <div class="risk-val">Critical</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">OR: Enterprise zone moratorium</div>
+        <div class="risk-bar-wrap"><div class="risk-bar critical" style="width:92%"></div></div>
+        <div class="risk-val">Critical</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">OR: Hillsboro litigation / title risk</div>
+        <div class="risk-bar-wrap"><div class="risk-bar high" style="width:75%"></div></div>
+        <div class="risk-val">Elevated</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">OR: POWER Act rate increases</div>
+        <div class="risk-bar-wrap"><div class="risk-bar high" style="width:70%"></div></div>
+        <div class="risk-val">Elevated</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">OR: Goal 14 land constraints (Hillsboro)</div>
+        <div class="risk-bar-wrap"><div class="risk-bar high" style="width:80%"></div></div>
+        <div class="risk-val">Elevated</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">Both: Water rights competition</div>
+        <div class="risk-bar-wrap"><div class="risk-bar high" style="width:65%"></div></div>
+        <div class="risk-val">Elevated</div>
+      </div>
+      <div class="risk-row">
+        <div class="risk-label">Both: Federal streamlining (upside)</div>
+        <div class="risk-bar-wrap"><div class="risk-bar low" style="width:38%"></div></div>
+        <div class="risk-val">Partial</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALENDAR -->
+<section>
+  <div class="container">
+    <div class="section-label">
+      <span class="state-pill pill-both">Forward Look</span>
+      <h2>Critical Milestones — Updated</h2>
+    </div>
+
+    <table class="compare-table">
+      <thead>
+        <tr><th>Milestone</th><th>Expected</th><th>Implication</th></tr>
+      </thead>
+      <tbody>
+        <tr class="changed">
+          <td>OR DCAC Draft Report ⚠</td>
+          <td>July 31, 2026</td>
+          <td>First signal on what 2027 Oregon legislation will target — energy, tax, water, or zoning. Narrow window to engage and shape this before it is published.</td>
+        </tr>
+        <tr>
+          <td>Spokane moratorium public hearing</td>
+          <td>July 22, 2026</td>
+          <td>May produce a permanent regulatory framework for data centers in Spokane County, including potential water service restrictions that extend beyond city limits</td>
+        </tr>
+        <tr>
+          <td>PGE Schedule 96 rehearing deadline</td>
+          <td>July 6, 2026</td>
+          <td>Data center interests filed for rehearing; any modifications to the POWER Act rate structure would affect operating cost assumptions for PGE territory sites</td>
+        </tr>
+        <tr>
+          <td>OR DCAC Final Report</td>
+          <td>October 2026</td>
+          <td>Full policy recommendations feeding into 2027 Oregon legislation — could address enterprise zone moratorium extension, new water use rules, or additional energy mandates</td>
+        </tr>
+        <tr>
+          <td>OR Pacific Power POWER Act proceeding</td>
+          <td>November 2026</td>
+          <td>Closes rate uncertainty for Pacific Power territory (eastern OR/WA border area)</td>
+        </tr>
+        <tr>
+          <td>WA UTC large-load policy statement</td>
+          <td>Late 2026</td>
+          <td>Sets interconnection cost rules for investor-owned utility sites — directly affects PSE/PacifiCorp territory economics</td>
+        </tr>
+        <tr>
+          <td>WA Data Center Workgroup final report</td>
+          <td>Late 2026</td>
+          <td>Template for 2027 WA legislation; will clarify clean energy procurement requirements and tax structure recommendations</td>
+        </tr>
+        <tr>
+          <td>WA 2027 legislative session</td>
+          <td>January 2027</td>
+          <td>Near-certain revival of HB 2515 framework; model >20 MW sites for clean energy mandates and dedicated tariffs as baseline assumptions</td>
+        </tr>
+        <tr>
+          <td>OR enterprise zone moratorium end</td>
+          <td>~Fall 2027</td>
+          <td>90 days after 2027 OR session adjourns — exemptions could resume, be restructured, or be permanently eliminated depending on DCAC recommendations</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SOURCES -->
+<section>
+  <div class="container">
+    <div class="section-label">
+      <span class="state-pill pill-both">Sources</span>
+      <h2>All Sources with Publication Dates</h2>
+    </div>
+    <p style="font-size:13px; color: var(--muted); font-style:italic; margin-bottom:20px;">Sources marked in red are new since the previous version of this guide.</p>
+
+    <ul class="sources-list">
+      <li><span class="src-date new">Jun 25, 2026</span><a href="https://katu.com/news/local/lawsuit-filed-against-hillsboro-washington-county-over-data-center-tax-breaks-billionaire-environment-company-fortune-500-oregon-portland-salem-politics-business-jobs-water-privacy" target="_blank">KATU News — Lawsuit Filed Against Hillsboro Over Data Center Tax Breaks</a></li>
+      <li><span class="src-date new">Jun 23, 2026</span><a href="https://my.spokanecity.org/news/releases/2026/06/23/spokane-city-council-passes-one-year-moratorium-on-data-centers/" target="_blank">City of Spokane — Council Passes One-Year Moratorium (Ordinance C36887)</a></li>
+      <li><span class="src-date new">Jun 23, 2026</span><a href="https://www.spokesman.com/stories/2026/jun/22/spokane-city-council-approves-yearlong-moratorium-/" target="_blank">Spokesman-Review — Spokane City Council Approves Yearlong Moratorium</a></li>
+      <li><span class="src-date new">Jun 23, 2026</span><a href="https://www.thecentersquare.com/washington/article_314ba536-9cfe-4545-9a8c-d342094fe5f0.html" target="_blank">The Center Square — Spokane Officials Impose One-Year Ban on New Data Center Projects</a></li>
+      <li><span class="src-date new">Jun 23, 2026</span><a href="https://writing.strisker.com/data-centers-daily-notes-june-23-2026/" target="_blank">Data Centers Daily Notes — June 23, 2026</a></li>
+      <li><span class="src-date new">Jun 20, 2026</span><a href="https://www.techtimes.com/articles/318755/20260620/ferc-mandates-fast-track-data-center-grid-access-shielding-ratepayers-costs.htm" target="_blank">TechTimes — FERC Mandates Fast-Track Data Center Grid Access</a></li>
+      <li><span class="src-date new">Jun 12, 2026</span><a href="https://www.spokesman.com/stories/2026/jun/12/avista-puts-data-center-negotiations-on-pause/" target="_blank">Spokesman-Review — Avista Puts Data Center Negotiations on Pause</a></li>
+      <li><span class="src-date new">Jun 9, 2026</span><a href="https://council.seattle.gov/2026/06/09/city-council-passes-emergency-data-center-moratorium-and-policy-framework/" target="_blank">Seattle City Council — City Council Passes Emergency Data Center Moratorium</a></li>
+      <li><span class="src-date new">Jun 9, 2026</span><a href="https://www.king5.com/article/news/local/seattle-city-council-passes-data-center-moratorium/281-00f0bdd8-d7fd-4ff9-b4ae-6aeee55c330d" target="_blank">KING5 — Seattle City Council Passes Data Center Moratorium</a></li>
+      <li><span class="src-date new">Jun 2026</span><a href="https://www.dwt.com/blogs/energy--environmental-law-blog/2026/06/oregon-data-center-tax-break-moratorium" target="_blank">Davis Wright Tremaine — New Oregon Law Impacts Data Center Development Statewide (HB 4084)</a></li>
+      <li><span class="src-date new">Jun 2026</span><a href="https://www.hillsboro-oregon.gov/community/data-centers" target="_blank">City of Hillsboro — Data Centers (Updated June 2026)</a></li>
+      <li><span class="src-date new">Jun 26, 2026</span><a href="https://www.oregon.gov/energy/get-involved/Documents/2026-06-26-DCAC-Agenda.pdf" target="_blank">Oregon Governor's Office — DCAC Meeting 5 Agenda (PDF)</a></li>
+      <li><span class="src-date">May 28, 2026</span><a href="https://www.utilitydive.com/news/oregon-puc-approves-pges-large-load-tariff-framework-for-data-centers/821361/" target="_blank">Utility Dive — Oregon PUC Approves PGE's Large-Load Tariff Framework (Schedule 96)</a></li>
+      <li><span class="src-date">May 29, 2026</span><a href="https://natlawreview.com/article/environmental-developments-watch-oregon" target="_blank">National Law Review — Oregon 2026 Legislative Session Environmental Overview (HB 4084)</a></li>
+      <li><span class="src-date">May 23, 2026</span><a href="https://www.climatesolutions.org/article/2026-05/oregons-power-act-first-its-kind-protect-oregonians-utility-bills-data-center" target="_blank">Climate Solutions — Oregon's POWER Act: First of Its Kind</a></li>
+      <li><span class="src-date">May 12, 2026</span><a href="https://oeconline.org/pge-guardrails-press-release/" target="_blank">Oregon Environmental Council — New Rules Protect Oregonians from Rate Increases</a></li>
+      <li><span class="src-date">May 12, 2026</span><a href="https://www.opb.org/article/2026/05/12/portland-general-electric-oregon-power-data-centers/" target="_blank">OPB — PGE Data Center Customers to Pay More Under Landmark Law</a></li>
+      <li><span class="src-date">May 5, 2026</span><a href="https://blog.hdata.com/2026-ferc-rulemaking-large-loads" target="_blank">hdata.com — What the 2026 FERC Rulemaking on Large Load Interconnection Means</a></li>
+      <li><span class="src-date">May 1, 2026</span><a href="https://www.multistate.us/insider/2026/4/14/federal-ai-data-center-policy-meets-resistance-from-state-lawmakers" target="_blank">MultiState — State Data Center Laws vs. Federal AI Push: 2026 Tracker</a></li>
+      <li><span class="src-date">Apr 27, 2026</span><a href="https://leyton.com/us/insights/articles/washington-removes-sales-tax-exemptions-for-data-center-equipment-replacement/" target="_blank">Leyton — Washington Removes Sales Tax Exemptions for Equipment Replacement</a></li>
+      <li><span class="src-date">Apr 21, 2026</span><a href="https://www.khq.com/news/state-of-washington-opens-new-review-of-big-power-users-as-data-center-demand-grows/article_b9e659b2-2f81-42d5-8089-c9c637fb5563.html" target="_blank">KHQ — Washington Opens Review of Big Power Users</a></li>
+      <li><span class="src-date">Apr 13, 2026</span><a href="https://www.afslaw.com/perspectives/alerts/state-regulation-data-centers-2026-shifting-landscape" target="_blank">ArentFox Schiff — State Regulation of Data Centers in 2026</a></li>
+      <li><span class="src-date">Apr 8, 2026</span><a href="https://www.eenews.net/articles/washington-state-to-end-some-data-center-tax-incentives/" target="_blank">E&amp;E News — Washington State to End Some Data Center Tax Incentives (SB 6231)</a></li>
+      <li><span class="src-date">Mar 20, 2026</span><a href="https://www.dwt.com/blogs/energy--environmental-law-blog/2026/03/washington-legislature-delays-data-center-bill" target="_blank">Davis Wright Tremaine — Washington Legislature Punts Data Center Legislation (HB 2515)</a></li>
+      <li><span class="src-date">Mar 7, 2026</span><a href="https://www.opb.org/article/2026/03/07/data-center-tax-zapped-washington-legislature/" target="_blank">OPB — Data Center Tax Break: Washington Legislature</a></li>
+      <li><span class="src-date">Mar 2, 2026</span><a href="https://www.opb.org/article/2026/03/02/data-centers-cut-bill-expanding-oregon-tax-breaks/" target="_blank">OPB — Data Centers Cut from Oregon Tax Break Bill (HB 4084 background)</a></li>
+      <li><span class="src-date">Feb 12, 2026</span><a href="https://www.opb.org/article/2026/02/12/washington-lawmakers-regulate-data-centers/" target="_blank">OPB — How Washington State Lawmakers Are Trying to Regulate Data Centers</a></li>
+      <li><span class="src-date">Dec 1, 2025</span><a href="https://dor.wa.gov/sites/default/files/2025-12/2025DataCntrWrkgrpPrelimReport.pdf" target="_blank">WA Data Center Workgroup — Preliminary Report (PDF)</a></li>
+      <li><span class="src-date">Standing</span><a href="https://www.oregon.gov/deq/aq/aqPermits/Pages/Data-Center-Permit.aspx" target="_blank">Oregon DEQ — Tier 4 Streamlined Data Center Permit</a></li>
+      <li><span class="src-date">Standing</span><a href="https://dor.wa.gov/forms-publications/publications-subject/tax-topics/data-centers-sales-and-use-tax-exemption-eligibility" target="_blank">WA Dept. of Revenue — Sales and Use Tax Exemption Eligibility</a></li>
+      <li><span class="src-date">Standing</span><a href="https://ecology.wa.gov/regulations-permits/sepa/clean-energy/early-planning/permitting-resources" target="_blank">WA Dept. of Ecology — Permitting Resources (SEPA)</a></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    Updated June 30, 2026 &nbsp;·&nbsp; For informational purposes; verify all regulatory details with legal counsel before underwriting &nbsp;·&nbsp; Regulations subject to change
+  </div>
+</footer>
+
+</body>
+</html>
